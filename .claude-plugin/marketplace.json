@@ -1,0 +1,14 @@
+{
+  "name": "figmawp",
+  "owner": {
+    "name": "Dan Gavin"
+  },
+  "plugins": [
+    {
+      "name": "figmaWP",
+      "description": "Figma ⇄ WordPress block-theme workflow: bootstrap, migrate, sync-to-dev, sync-to-figma, resume.",
+      "source": "./plugin",
+      "category": "design"
+    }
+  ]
+}

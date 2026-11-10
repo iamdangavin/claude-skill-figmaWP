@@ -1,0 +1,9 @@
+{
+  "name": "figmaWP",
+  "version": "0.1.2",
+  "description": "Figma ⇄ WordPress block-theme workflow. Figma leads: design changes flow to the child theme and companion blocks plugin on a review branch; drift found in dev flows back to Figma as annotations.",
+  "author": {
+    "name": "Dan Gavin"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@iamdangavin/figmawp",
+  "version": "0.1.2",
+  "description": "figmaWP: a Claude Code plugin for a Figma ⇄ WordPress block-theme workflow. Bootstrap, migrate, sync-to-dev, sync-to-figma, and resume.",
+  "type": "module",
+  "bin": {
+    "figmawp": "./bin/figmawp.js"
+  },
+  "files": [
+    "bin/",
+    ".claude-plugin/",
+    "plugin/",
+    "vendor/"
+  ],
+  "scripts": {
+    "validate": "claude plugin validate . && claude plugin validate ./plugin",
+    "test": "node --test plugin/scripts/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "claude-plugin",
+    "figma",
+    "wordpress",
+    "block-theme",
+    "theme.json"
+  ],
+  "author": "Dan Gavin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamdangavin/figmawp.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
