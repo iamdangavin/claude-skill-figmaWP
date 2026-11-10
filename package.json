@@ -1,6 +1,6 @@
 {
   "name": "@iamdangavin/figmawp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "figmaWP: a Claude Code plugin for a Figma ⇄ WordPress block-theme workflow. Bootstrap, migrate, sync-to-dev, sync-to-figma, and resume.",
   "type": "module",
   "bin": {
@@ -32,7 +32,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iamdangavin/figmawp.git"
+    "url": "git+https://github.com/iamdangavin/claude-skill-figmaWP.git"
+  },
+  "homepage": "https://github.com/iamdangavin/claude-skill-figmaWP#readme",
+  "bugs": {
+    "url": "https://github.com/iamdangavin/claude-skill-figmaWP/issues"
   },
   "publishConfig": {
     "access": "public"
