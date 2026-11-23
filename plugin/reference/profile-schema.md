@@ -69,6 +69,7 @@ Add `.figmawp/local.json` to the child theme's `.gitignore`.
     "source": "wp-collections",
     "collections": ["WP Color", "WP Typography", "WP Spacing"],
     "slugStrategy": "keep-theme",
+    "migrationMode": "copy",
     "slugMap": {
       "color/surface": "surface",
       "Brand/brand-1": "brand-1"
@@ -103,6 +104,7 @@ Add `.figmawp/local.json` to the child theme's `.gitignore`.
 - `tokens.slugStrategy`:
   - `"keep-theme"` (default for a theme with content already live): Figma variables map onto the slugs **already in theme.json**, via `tokens.slugMap`. Never rename a slug that content uses.
   - `"wp-defaults"` (new themes only): use the convention's default slugs (spacing 20–80, font-size small…xx-large).
+- `tokens.migrationMode`: how `/figmaWP:migrate` fills the WP variables. `"copy"` (default) copies the values in, so the WP collections become the only source and the old collections are hidden; `"alias"` makes the WP variables reference the old ones.
 - `tokens.slugMap`: Figma variable name (`Collection/path` or `path`) → theme.json slug. It's authoritative for sync. Unmapped variables are reported, never guessed.
 - `tokens.mobileFrames: false`: there are no mobile designs, so `clamp()` minimums are proposals and the Mobile modes are not a source of truth.
 - `tokens.docs`: existing project docs that describe the Figma → theme mapping. Read them before any token work and keep them updated.

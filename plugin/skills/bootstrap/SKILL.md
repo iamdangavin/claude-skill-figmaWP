@@ -64,7 +64,8 @@ Invoke the `discovery` skill with a brief containing the analysis summary and th
    - Yes: save it as `.figmawp/snapshots/figma-latest.json`, so the first sync only picks up changes made after today.
    - No: leave it absent, so the first `/figmaWP:sync-to-dev` treats everything as new (suitable for a fresh theme).
    - Partly: save the baseline but drop the frames the user names, so only those come through as new.
-4. Do not commit. Show `git status` and suggest committing `.figmawp/` and `.mcp.json` on a branch.
+4. Don't edit any other files. If existing docs are out of date (wrong paths, stale mappings), list the fixes in the summary and offer to make them. Never change them silently.
+5. Do not commit. Show `git status` and suggest committing `.figmawp/` and `.mcp.json` on a branch.
 
 ## Finish
 Summarize: connections (✓/✗), repos found, profile highlights, and the recommended next command (`/figmaWP:migrate` if the Figma file isn't on the convention, else `/figmaWP:sync-to-dev`).
