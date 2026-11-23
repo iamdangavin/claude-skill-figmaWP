@@ -22,18 +22,18 @@ On a real project, most of the work fell outside what figmaWP 0.1.3 covers:
 | # | Decision |
 |---|---|
 | D1 | **Approved two-way.** Figma still owns tokens and their values. The agent may author Figma components, page frames and prototypes after the user approves a plan. Every run keeps a ledger and leaves annotations. Guardrails are rewritten to say so. |
-| D2 | **Content is first-class.** `/figmaWP:build` generates and runs idempotent `wp eval-file` scripts from a shared helper library. |
-| D3 | **`/figmaWP:push --staging` / `--prod`.** Connection details live only in `~/.ssh/config`; the profile stores a host alias and the WP root, so nothing sensitive is stored in the repo or in Claude sessions. |
+| D2 | **Content is first-class.** `/figmawp:build` generates and runs idempotent `wp eval-file` scripts from a shared helper library. |
+| D3 | **`/figmawp:push --staging` / `--prod`.** Connection details live only in `~/.ssh/config`; the profile stores a host alias and the WP root, so nothing sensitive is stored in the repo or in Claude sessions. |
 | D4 | **Production guards:** the user types the production host name to confirm; a DB backup and a dry run of every script come first; **files only** unless `--content` is passed. |
-| D5 | **`/figmaWP:pull`**: full DB + uploads from a source environment, with URL search-replace, after a backup of the target. Never writes to production. Allowed directions: production → staging/local, staging → local. |
+| D5 | **`/figmawp:pull`**: full DB + uploads from a source environment, with URL search-replace, after a backup of the target. Never writes to production. Allowed directions: production → staging/local, staging → local. |
 | D6 | **Conflicts:** each build script records a hash of what it wrote. If the live content no longer matches (an editor changed it, or a pull brought changes), show a diff and ask: keep, overwrite, or merge by hand. |
 | D7 | **Helpers:** pages + block builders; media + PDFs; synced patterns / overrides; Gravity Forms + menus (plugin helpers load only when the plugin is active). |
 | D8 | **Images:** detect changes (image hash + filters + crop) and run the full pipeline. |
 | D9 | **Scoped sync:** sync-to-dev accepts Figma URLs, node IDs or page names; whole-file stays the default. |
 | D10 | **Verification:** Playwright first. Safari MCP for live-site reads and the user's logged-in browser. Every run writes a report. |
-| D11 | **`/figmaWP:design`** authors components + variants, page frames mirrored from dev, and prototypes. Print/PDF pages are not in scope for now. |
+| D11 | **`/figmawp:design`** authors components + variants, page frames mirrored from dev, and prototypes. Print/PDF pages are not in scope for now. |
 | D12 | **Docs automation:** a generated node map, an activity log, and `/discovery` decisions written to the decisions doc. |
-| D13 | **Profile settings** for project habits (`figma.mobileFrames`, `git.agentCommits`, `git.branching`), asked once by bootstrap. A **standard Figma ledger** for resumable design runs. |
+| D13 | **Profile settings** for project habits (`tokens.mobileFrames`, `git.agentCommits`, `git.branching`), asked once by bootstrap. A **standard Figma ledger** for resumable design runs. |
 | D14 | **New skills**, kept short: `push`, `pull`, `build`, `design`. |
 | D15 | **Phased**: 0.2.0, 0.3.0, 0.4.0. Step 0: the current WIP (bootstrap, migrate, profile-schema) is committed or shelved first. |
 
@@ -45,6 +45,16 @@ Commit or shelve the WIP in `plugin/skills/bootstrap/SKILL.md`, `plugin/skills/m
 ---
 
 ## Phase 1 → 0.2.0: images, scoped sync, push, pull
+
+**Status (2026-11-23): written, not committed.** Review round 2 (Dan, same day) removed assumptions copied from Alabama Film. Where the build differs from the plan below:
+- **Nothing project-specific is a default.** Image export mode (`images.export`: `"fill"` = the photo alone, or `"node"` = the layer as designed), `dropFills` (empty by default), format/encoder, scale and size, viewport widths, push excludes and afterPush are detected where possible and asked at bootstrap. The examples in the plan below (`SHADER`, avifenc settings, 2232 px) were one project's answers.
+- **Mobile designs:** `tokens.mobileFrames` becomes `"none" | "reference" | "source"` (not `figma.mobileFrames`), asked at bootstrap after counting frames by width, with `blocks.mobilePairs`. Most files build fluid desktop frames with auto-layout, so small frames are usually a visual reference, not a source of separate rules.
+- **Server folders:** bootstrap finds `wpRoot` over the alias (candidates with `wp-config.php`, matched by `home` against the environment URL); push and pull re-check that match every run and ask WordPress for the theme, plugin and uploads folders instead of assuming `wp-content/…`.
+- **Pull flags (D5 revised):** the flag is the source: `pull --prod` → local and staging in one run (one export, imported per target; `--to` narrows), `pull --staging` → local. Default is a **preview** of what changed on each side since the last pull (`php/content-manifest.php` + `scripts/manifest-diff.mjs`, baseline in `.figmawp/pull/<source>-manifest.json`); `--full` replaces the target databases. Selective apply is §2.5 (0.3.0).
+- **Renamed** the plugin `figmaWP` → `figmawp` (kebab-case for the plugin directory); commands are `/figmawp:…`; `figmawp update` uninstalls the old name. CHANGELOG.md records it.
+- Image destinations live in `profile.images.map`; the build script template is `plugin/php/set-block-image.php` (Cover, Image, Media & Text, featured image; tested on local: dry run, real run, idempotent re-run, in-place file replacement, blocks valid in the editor). The image steps are `reference/image-pipeline.md`.
+- Pending content per environment is `state.pendingContent` until the Phase 2 registry replaces it.
+- Not yet run against a real server: push and pull. First real use should be `/figmawp:push --staging --dry-run` and `/figmawp:pull --prod` (preview only) on Alabama Film.
 
 ### 1.1 Profile schema (`reference/profile-schema.md`), schemaVersion 2
 ```jsonc
@@ -79,7 +89,7 @@ Commit or shelve the WIP in `plugin/skills/bootstrap/SKILL.md`, `plugin/skills/m
 - `.figmawp/local.json` may override `ssh` and `wpRoot` per machine (it's gitignored).
 
 ### 1.2 Guardrails (`reference/guardrails.md`), rewritten
-- Direction of truth: D1 wording. Tokens and values: Figma only. Design authoring: `/figmaWP:design` with an approved plan + ledger + annotations.
+- Direction of truth: D1 wording. Tokens and values: Figma only. Design authoring: `/figmawp:design` with an approved plan + ledger + annotations.
 - Environments table becomes access-driven (`full` / `push` / `push-guarded` / `read-only`). Hosts containing `prod`/`production` are always `push-guarded` at most.
 - SSH: only `ssh <alias>` and `rsync … <alias>:…`. Never read, print or copy `~/.ssh/config` or keys; never put a host, user or key in a command line, file or report.
 - Secrets: never read `wp-config.php` values; only `wp config has <NAME>`.
@@ -104,8 +114,8 @@ For each changed image:
 - Snapshot only those subtrees (plus anything they reference: variables and components used), diff against the same keys in `figma-latest.json`, and **merge** the result into `figma-latest.json` afterwards (other keys untouched).
 - Report and branch names include the scope (`figma-sync/2026-11-20-heroes`).
 
-### 1.6 `/figmaWP:push` (new skill)
-`/figmaWP:push --staging | --prod [--content] [--dry-run]`
+### 1.6 `/figmawp:push` (new skill)
+`/figmawp:push --staging | --prod [--content] [--dry-run]`
 1. Preflight: profile environment has `ssh`; `ssh -o BatchMode=yes <alias> true` works (otherwise tell the user to set up the alias and stop); git status clean or the user accepts; for `--prod`, the user types the production host name.
 2. Backup: `wp db export` to `~/figmawp-backups/<date>/` on the server (path reported, never downloaded unless asked).
 3. Files: rsync dry run (`-n --itemize-changes`) shown, then the real rsync of the theme (+ `push.plugins`) with `push.excludes`. Unexpected files in the dry run (changes not from this session) are listed and confirmed, not silently pushed.
@@ -113,15 +123,15 @@ For each changed image:
 5. `push.afterPush` commands.
 6. Verify (Playwright when available, else Safari), append the activity log, update `state.json` → `lastPush[env]`.
 
-### 1.7 `/figmaWP:pull` (new skill)
-`/figmaWP:pull --from production|staging --to staging|local`
+### 1.7 `/figmawp:pull` (new skill)
+`/figmawp:pull --from production|staging --to staging|local`
 - Refuses `--to production`. Refuses `--from staging --to staging`.
 - Back up the target DB first; export the source DB over SSH (`wp db export -`, streamed to a temp file, never printed); `wp search-replace '//source-host' '//target-host' --all-tables-with-prefix` on import; rsync `wp-content/uploads/` from source to target (no `--delete`).
 - After pull: `wp cache flush`, pattern cache flush, `blog_public` stays as the target had it (warn if it changed), then mark every build script's recorded hash as "needs check" (Phase 2 conflict detection).
 - Report what changed: post counts by type, newest modified posts, uploads added.
 
 ### 1.8 Bootstrap + resume
-- bootstrap asks (via `/discovery`) for the ssh aliases, WP roots, access levels, image settings, `figma.mobileFrames`, `git.agentCommits`, `git.branching`.
+- bootstrap asks (via `/discovery`) for the ssh aliases, WP roots, access levels, image settings, `tokens.mobileFrames`, `git.agentCommits`, `git.branching`.
 - resume reports `lastPush` / `lastPull` per environment and any images changed since the last snapshot.
 
 ### 1.9 Tests and docs
@@ -133,7 +143,7 @@ For each changed image:
 
 ## Phase 2 → 0.3.0: build library, conflicts, verification
 
-### 2.1 `/figmaWP:build` (new skill)
+### 2.1 `/figmawp:build` (new skill)
 - Writes scripts to `.figmawp/build/<YYYY-MM-DD>/<name>.php`, each starting with the helper bootstrap and a header (purpose, idempotency, usage, `dry`).
 - Runs them locally (dry, then real), records results in the registry.
 
@@ -156,14 +166,20 @@ For each changed image:
 - Reports to `.figmawp/reports/<date>-<skill>-<env>.md` with screenshots alongside.
 - Test emails use a profile-set domain (GF rejects `example.com`).
 
+### 2.5 Selective pull (`/figmawp:pull` without `--full`)
+- Builds on the 0.2.0 preview (manifests + `manifest-diff.mjs`): for each item changed on the source only, ask apply / skip; for each conflict, keep target / take source / skip (show a content diff).
+- Apply with two helper scripts: `export-items.php` on the source (posts by type + path with meta, terms, featured image file; attachments by file; synced patterns; navigation; GF forms by title) → JSON over SSH, and `import-items.php` on the target, matching by type + path, never by ID.
+- **ID mapping:** attachments are imported first (by file name, uploads rsynced), giving a source → target ID map; block attributes and markup that hold IDs (`"id":N`, `wp-image-N`, `"ref":N`, `mediaId`, navigation `"id"`) are rewritten through the map before saving.
+- Each applied item updates the target's entry in the saved manifest, so the next preview stays accurate; the registry (2.3) records it so build scripts know their content was touched.
+
 ---
 
 ## Phase 3 → 0.4.0: design authoring, prototypes, docs
 
-### 3.1 `/figmaWP:design` (new skill)
+### 3.1 `/figmawp:design` (new skill)
 - Modes: `component` (create/update a component set with variants, states, boolean/text properties, variables bound), `frame` (mirror a WordPress page into a Figma frame by cloning header/footer/hero and reusing components), `prototype`.
 - Always: `/discovery` plan → user approval → ledger `.figmawp/ledger/<run>.json` (created node IDs, completed steps, resume point) → annotations on changed nodes → screenshot check → node map update.
-- Honours `figma.mobileFrames` (no mobile frames unless asked) and canvas placement (never overlap existing frames; place to the right).
+- Honours `tokens.mobileFrames` (small-screen frames only when it's `reference`/`source` and the user asks) and canvas placement (never overlap existing frames; place to the right).
 - Prototypes: a `zz-prototype` collection (name from profile) of booleans bound to panel visibility, `SET_VARIABLE` reactions, flow starting points; the collection is added to `tokens.ignoreCollections` automatically.
 
 ### 3.2 Docs automation

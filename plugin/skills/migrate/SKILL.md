@@ -5,7 +5,7 @@ description: Migrate a Figma file onto the figmaWP WordPress conventions. Step 1
 
 # figmaWP: migrate
 
-`PLUGIN` = the directory two levels above this skill's base directory. Read `PLUGIN/reference/guardrails.md`, `PLUGIN/reference/token-convention.md`, and `PLUGIN/reference/block-naming.md` first. Requires `.figmawp/profile.json` (find it with "Finding the project" in profile-schema.md); if missing, run `/figmaWP:bootstrap` first.
+`PLUGIN` = the directory two levels above this skill's base directory. Read `PLUGIN/reference/guardrails.md`, `PLUGIN/reference/token-convention.md`, and `PLUGIN/reference/block-naming.md` first. Requires `.figmawp/profile.json` (find it with "Finding the project" in profile-schema.md); if missing, run `/figmawp:bootstrap` first.
 
 This skill **writes to Figma**, so every change is previewed and confirmed. Load `/figma-use` guidance before any `use_figma` call.
 
@@ -40,7 +40,7 @@ Rules:
 - When several old variables map to one slug (e.g. a padding and a gap with the same value), merge them into one WP variable. If their values differ, flag it and ask.
 - Items in `profile.tokens.unmapped` must each be decided: map to an existing slug, add a new slug (which also needs a theme.json addition, so note it for sync-to-dev), or leave unmigrated.
 - If a partial "WP …" migration already exists in the file, inventory it, reuse what's correct, and list what's wrong (e.g. default slugs like `primary` that don't exist in the theme). Correct variables **in place** (rename, re-scope, fix Code syntax) instead of deleting and recreating, so existing bindings survive. Remove a stray WP variable only if no layer uses it, after asking.
-- Mobile values: when `tokens.mobileFrames` is false, propose minimums from the existing `clamp()` values in theme.json, and mark them as proposals.
+- Mobile values: when `tokens.mobileFrames` is `"none"` or `"reference"` (or `false` in a version 1 profile), propose minimums from the existing `clamp()` values in theme.json, and mark them as proposals.
 - Flag anything that doesn't fit (gradients, shadows, grain) as `custom.*` candidates with a Code syntax.
 
 Present the table through `/discovery` and let the user adjust it. Save the confirmed map to `.figmawp/migration/variables-map.json`.
@@ -69,7 +69,7 @@ After a successful real run (not a rehearsal):
 - `profile.tokens.source = "wp-collections"`, `tokens.collections = ["WP Color", "WP Typography", "WP Spacing"]`, and move the old collection names to `tokens.ignoreCollections`.
 - Rewrite `tokens.slugMap` keys to the WP variable names. Remove resolved items from `tokens.unmapped`.
 - Take a fresh snapshot and promote it to `figma-latest.json` (values didn't change, only names and bindings, so the next sync-to-dev should show no token changes; if it does, investigate).
-- Note any new slugs decided in 1b for the next `/figmaWP:sync-to-dev`.
+- Note any new slugs decided in 1b for the next `/figmawp:sync-to-dev`.
 
 ### 1f. Theme slug migration (optional, `wp-defaults` only)
 Skip this with `keep-theme`. Otherwise, if slugs changed relative to the theme, write `.figmawp/migration/slug-map.json` and run `node PLUGIN/scripts/migrate-slugs.mjs <child-theme> .figmawp/migration/slug-map.json` (dry run), show the report, and run with `--write` only on a `figma-sync/<date>` branch after confirmation. Database commands in `slug-migration.sh` are for **local** only and only when the user asks.
@@ -82,4 +82,4 @@ For each page the user selects:
 4. Record `state.json` → `migration.blockNaming.<page> = "done"`, and add confirmed frame → file destinations to `profile.blocks.pathMap` (real run only).
 
 ## Finish
-Summarize what changed in Figma (collections, variables, rebinds per page, renamed layers), the verification results, and what's pending. After a rehearsal, recommend reviewing the duplicate in Figma, then running `/figmaWP:migrate` without `--file` on the real file. After a real run, suggest `/figmaWP:sync-to-dev`.
+Summarize what changed in Figma (collections, variables, rebinds per page, renamed layers), the verification results, and what's pending. After a rehearsal, recommend reviewing the duplicate in Figma, then running `/figmawp:migrate` without `--file` on the real file. After a real run, suggest `/figmawp:sync-to-dev`.

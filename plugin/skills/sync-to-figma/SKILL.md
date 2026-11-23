@@ -1,19 +1,19 @@
 ---
 name: sync-to-figma
-description: Check a WordPress environment (local, staging, or production) for drift from the Figma design and report it back to Figma as Dev Mode annotations, plus a REST comment when FIGMA_TOKEN is set. Never changes designs. Local is inspected through files, wp-cli and Safari; staging and production through Safari only, read-only. Use when the user says "check for drift", "what changed on staging", "send dev changes back to Figma", "does the site match Figma", or runs /figmaWP:sync-to-figma.
+description: Check a WordPress environment (local, staging, or production) for drift from the Figma design and report it back to Figma as Dev Mode annotations, plus a REST comment when FIGMA_TOKEN is set. Never changes designs. Local is inspected through files, wp-cli and Safari; staging and production through Safari only, read-only. Use when the user says "check for drift", "what changed on staging", "send dev changes back to Figma", "does the site match Figma", or runs /figmawp:sync-to-figma.
 ---
 
 # figmaWP: sync-to-figma
 
 `PLUGIN` = the directory two levels above this skill's base directory. Read `PLUGIN/reference/guardrails.md` and `PLUGIN/reference/snapshot.md`. Requires `.figmawp/profile.json` (find it with "Finding the project" in profile-schema.md) merged with `.figmawp/local.json`. Map dev token values back to Figma variables through `profile.tokens.slugMap`.
 
-Argument: the environment name, `local` (default), `staging`, or `production`. Add `--report-only` to write the drift report without touching Figma (used by `/figmaWP:resume`).
+Argument: the environment name, `local` (default), `staging`, or `production`. Add `--report-only` to write the drift report without touching Figma (used by `/figmawp:resume`).
 
-**Figma leads.** This skill reports. It never edits designs, variable values, or styles.
+**This skill only reports.** It never edits designs, variable values, or styles. (Design authoring is a separate, approved step; see guardrails.md.)
 
 ## 1. Preflight
-- The environment exists in `profile.environments`. Staging and production are **read-only via Safari**: no wp-cli, no SSH, no logins that change state, no form submissions.
-- The Safari MCP responds (otherwise hand off to `/figmaWP:bootstrap`). Start a Figma session with `figma.fileKey`.
+- The environment exists in `profile.environments`. This skill only **reads** staging and production, through Safari (or headless Playwright), whatever their `access`: no wp-cli writes, no logins that change state, no form submissions.
+- The Safari MCP responds (otherwise hand off to `/figmawp:bootstrap`). Start a Figma session with `figma.fileKey`.
 - Load `.figmawp/snapshots/figma-latest.json` as the design baseline. If it's missing, take a snapshot now.
 
 ## 2. Collect dev state
@@ -22,7 +22,7 @@ Argument: the environment name, `local` (default), `staging`, or `production`. A
 - staging/production: in Safari, read `:root` computed custom properties (`--wp--preset--*`, `--wp--custom--*`, `--wp--style--global--*`) from the home page.
 
 **Rendered pages**: for each frame in `profile.blocks.pathMap` with a URL-resolvable destination (templates → a page using them; patterns → a page known to include them, if recorded), use Safari to:
-- Screenshot at 1440 and 390 widths.
+- Screenshot at `tokens.viewport.max` and `tokens.viewport.min`. When `tokens.mobileFrames` is `"reference"` or `"source"` and the frame has a pair in `blocks.mobilePairs`, compare the small-screen screenshot with that frame; with `"none"`, check small screens for breakage only (overflow, overlap, unreadable text), not against a design.
 - Read the block structure from the DOM (`.wp-block-*` classes, `is-layout-*`, `has-*-color`, `has-*-font-size`) and the computed styles of key elements.
 
 **Code changes not from Figma** (local only): `git log` on both repos since `state.lastSync.at`, excluding `figma-sync/*` merge commits, to explain *why* something drifted.
@@ -47,4 +47,4 @@ Ignore expected differences: real content versus placeholder copy, admin bar, co
 3. Update `state.json` → `lastDrift.<env>` and `openDrift` (drop items that no longer reproduce, and remove their annotations).
 
 ## Finish
-Report the counts by kind, the top items, the report path, and whether comments were posted. Remind the user that adopting a dev change means a designer updates Figma, then `/figmaWP:sync-to-dev` brings it back through the normal path.
+Report the counts by kind, the top items, the report path, and whether comments were posted. Remind the user that adopting a dev change means a designer updates Figma, then `/figmawp:sync-to-dev` brings it back through the normal path.

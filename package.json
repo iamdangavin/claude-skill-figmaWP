@@ -1,7 +1,7 @@
 {
   "name": "@iamdangavin/figmawp",
-  "version": "0.1.3",
-  "description": "figmaWP: a Claude Code plugin for a Figma ⇄ WordPress block-theme workflow. Bootstrap, migrate, sync-to-dev, sync-to-figma, and resume.",
+  "version": "0.2.0",
+  "description": "figmaWP: a Claude Code plugin for a Figma ⇄ WordPress block-theme workflow. Bootstrap, migrate, sync-to-dev (scoped, with an image pipeline), sync-to-figma, push, pull and resume.",
   "type": "module",
   "bin": {
     "figmawp": "./bin/figmawp.js"
