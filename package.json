@@ -10,7 +10,8 @@
     "bin/",
     ".claude-plugin/",
     "plugin/",
-    "vendor/"
+    "vendor/",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "validate": "claude plugin validate . && claude plugin validate ./plugin",

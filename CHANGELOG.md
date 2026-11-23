@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (unreleased)
+## 0.2.0 (2026-11-23)
 
 ### Breaking: the plugin is now `figmawp` (was `figmaWP`)
 Claude's plugin directory requires kebab-case plugin names (lowercase letters, digits and hyphens), so the plugin is renamed and every command is now lowercase:
