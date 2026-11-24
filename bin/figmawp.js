@@ -3,7 +3,7 @@
 //
 //   figmawp install     add this package as the "figmawp" marketplace, install figmaWP,
 //                       and copy /discovery to ~/.claude/skills if it is missing
-//   figmawp update      refresh the marketplace and plugin after `npm update -g`
+//   figmawp update      refresh the marketplace and plugin after `npm i -g @iamdangavin/figmawp@latest`
 //   figmawp uninstall   remove the plugin and marketplace (leaves /discovery alone)
 //   figmawp doctor      show what is installed and what is missing
 

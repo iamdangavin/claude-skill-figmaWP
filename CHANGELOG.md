@@ -13,7 +13,7 @@ Claude's plugin directory requires kebab-case plugin names (lowercase letters, d
 | `/figmaWP:migrate` | `/figmawp:migrate` |
 | `/figmaWP:resume` | `/figmawp:resume` |
 
-The npm package (`@iamdangavin/figmawp`), the `figmawp` CLI, the marketplace name and the `.figmawp/` folder are unchanged. To upgrade: `npm update -g @iamdangavin/figmawp && figmawp update`; `update` uninstalls the old `figmaWP@figmawp` plugin and installs `figmawp@figmawp`, so the commands don't show up twice. Restart Claude Code afterwards. "figmaWP" is still the product name in docs.
+The npm package (`@iamdangavin/figmawp`), the `figmawp` CLI, the marketplace name and the `.figmawp/` folder are unchanged. To upgrade: `npm i -g @iamdangavin/figmawp@latest && figmawp update` (not `npm update -g`, which stays on 0.1.x); `update` uninstalls the old `figmaWP@figmawp` plugin and installs `figmawp@figmawp`, so the commands don't show up twice. Restart Claude Code afterwards. "figmaWP" is still the product name in docs.
 
 ### Added
 - **`/figmawp:push --staging | --prod`**: push the theme (and listed plugins) plus pending build scripts over a `~/.ssh/config` alias. Before changing anything it checks the server folder belongs to the right site, backs up the database and theme, shows an rsync dry run, and dry-runs each script. Production needs the host name typed and gets files only unless you add `--content`.

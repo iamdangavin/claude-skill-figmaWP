@@ -238,7 +238,7 @@ export FIGMA_TOKEN=figd_…   # Figma → Settings → Security → Personal acc
 ## Update or remove
 
 ```sh
-npm update -g @iamdangavin/figmawp && figmawp update    # update
+npm i -g @iamdangavin/figmawp@latest && figmawp update   # update (npm update -g stays on 0.1.x for 0.x versions)
 figmawp uninstall && npm rm -g @iamdangavin/figmawp     # remove
 ```
 
